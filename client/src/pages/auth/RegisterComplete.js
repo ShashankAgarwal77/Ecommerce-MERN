@@ -9,12 +9,52 @@ const RegisterComplete = ({ history }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  useState(() => {
+  useEffect(() => {
     setEmail(window.localStorage.getItem("emailForRegistration"));
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    //validation
+    if (!email || !password) {
+      toast.error("Email and Password is Required");
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("Password must be atleast 6 Characters Long");
+      return;
+    }
+
+    try {
+      const result = await auth.signInWithEmailLink(
+        email,
+        window.location.href,
+      );
+
+      // console.log("RESULT -->", result);
+      if (result.user.emailVerified) {
+        // remove user email from local storage
+        window.localStorage.removeItem("emailForRegistration");
+
+        // get userId token
+        let user = auth.currentUser;
+
+        await user.updatePassword(password);
+
+        const idTokenResult = await user.getIdTokenResult();
+
+        // redux store
+        console.log("user", user, "idTokenResult", idTokenResult);
+
+        // redirect
+        history.push("/");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
   };
 
   return (
