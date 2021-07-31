@@ -8,9 +8,9 @@ const Register = ({ history }) => {
 
   const { user } = useSelector((state) => ({ ...state }));
 
-  // useEffect(() => {
-  //   if (user && user.token) history.push("/");
-  // }, [user]);
+  useEffect(() => {
+    if (user && user.token) history.push("/");
+  }, [user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
